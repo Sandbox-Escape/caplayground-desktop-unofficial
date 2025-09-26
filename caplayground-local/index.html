@@ -43,7 +43,7 @@
       padding: 15px 20px;
       border-bottom: 1px solid #333;
       display: flex;
-      justify-content: between;
+      justify-content: space-between;
       align-items: center;
     }
     
@@ -87,6 +87,7 @@
       cursor: pointer;
       font-size: 14px;
       margin: 5px;
+      width: calc(100% - 10px);
     }
     
     .btn:hover {
@@ -99,6 +100,14 @@
     
     .btn-secondary:hover {
       background: #555;
+    }
+    
+    .btn-success {
+      background: #28a745;
+    }
+    
+    .btn-success:hover {
+      background: #218838;
     }
     
     .section {
@@ -138,7 +147,7 @@
       margin-bottom: 8px;
       cursor: pointer;
       display: flex;
-      justify-content: between;
+      justify-content: space-between;
       align-items: center;
     }
     
@@ -168,6 +177,31 @@
       backdrop-filter: blur(10px);
     }
     
+    .login-section {
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .login-status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .login-status.offline {
+      background: #444;
+      color: #ccc;
+    }
+    
+    .login-status.online {
+      background: #28a745;
+      color: white;
+    }
+    
     @keyframes pulse {
       0%, 100% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.1); opacity: 0.8; }
@@ -188,11 +222,24 @@
   <div class="app-container">
     <div class="sidebar">
       <div class="section">
+        <h3>Account</h3>
+        <div class="login-section">
+          <div class="login-status offline" id="loginStatus">
+            🔒 Local Mode - No Account
+          </div>
+          <button class="btn btn-secondary" id="loginBtn" onclick="toggleLogin()">Enable Local Account</button>
+          <div style="font-size: 12px; color: #888; margin-top: 10px;">
+            Optional: Enable to save projects with user info
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
         <h3>Layers</h3>
         <div id="layers-list">
           <div class="layer-item active" data-layer="background">
-            <span>Background</span>
-            <span>🎨</span>
+            Background
+            🎨
           </div>
         </div>
         <button class="btn" onclick="addLayer()">Add Layer</button>
@@ -202,6 +249,7 @@
         <h3>Project</h3>
         <button class="btn" onclick="exportProject()">Export Wallpaper</button>
         <button class="btn btn-secondary" onclick="saveProject()">Save Project</button>
+        <button class="btn btn-secondary" onclick="loadProject()">Load Project</button>
       </div>
     </div>
     
@@ -235,22 +283,22 @@
             
             <div class="control-group">
               <label>Width</label>
-              <input type="range" id="width" min="10" max="300" value="100" onchange="updateProperty('width', this.value)">
+              <input id="width" type="range" min="10" max="300" value="100" onchange="updateProperty('width', this.value)">
             </div>
             
             <div class="control-group">
               <label>Height</label>
-              <input type="range" id="height" min="10" max="300" value="100" onchange="updateProperty('height', this.value)">
+              <input id="height" type="range" min="10" max="300" value="100" onchange="updateProperty('height', this.value)">
             </div>
             
             <div class="control-group">
               <label>X Position</label>
-              <input type="range" id="x" min="0" max="375" value="137" onchange="updateProperty('x', this.value)">
+              <input id="x" type="range" min="0" max="375" value="137" onchange="updateProperty('x', this.value)">
             </div>
             
             <div class="control-group">
               <label>Y Position</label>
-              <input type="range" id="y" min="0" max="812" value="356" onchange="updateProperty('y', this.value)">
+              <input id="y" type="range" min="0" max="812" value="356" onchange="updateProperty('y', this.value)">
             </div>
           </div>
           
@@ -268,7 +316,7 @@
             
             <div class="control-group">
               <label>Duration (seconds)</label>
-              <input type="range" id="duration" min="0.5" max="10" step="0.1" value="2" onchange="updateAnimation()">
+              <input id="duration" type="range" min="0.5" max="10" step="0.1" value="2" onchange="updateAnimation()">
             </div>
           </div>
           
@@ -276,12 +324,12 @@
             <h3>Style</h3>
             <div class="control-group">
               <label>Background Color</label>
-              <input type="color" id="bgColor" value="#ffffff" onchange="updateProperty('backgroundColor', this.value)">
+              <input id="bgColor" type="color" value="#ffffff" onchange="updateProperty('backgroundColor', this.value)">
             </div>
             
             <div class="control-group">
               <label>Opacity</label>
-              <input type="range" id="opacity" min="0" max="1" step="0.1" value="0.5" onchange="updateProperty('opacity', this.value)">
+              <input id="opacity" type="range" min="0" max="1" step="0.1" value="0.5" onchange="updateProperty('opacity', this.value)">
             </div>
           </div>
         </div>
