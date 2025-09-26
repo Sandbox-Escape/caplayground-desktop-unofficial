@@ -1,6 +1,5 @@
 // CAPlayground Desktop - JavaScript Application Logic
 // Fully local and offline animated wallpaper editor
-
 class CAPlaygroundDesktop {
   constructor() {
     this.layers = [];
@@ -9,18 +8,22 @@ class CAPlaygroundDesktop {
     this.isPreviewMode = false;
     this.canvas = document.getElementById('canvas');
     this.layersList = document.getElementById('layers-list');
-    
+
+    // Simple local login state (no remote calls)
+    this.isLoggedIn = JSON.parse(localStorage.getItem('caplayground-login') || 'false');
+    this.updateLoginUI();
+
     // Initialize with default background layer
     this.addDefaultLayer();
     this.bindEvents();
     this.loadFromStorage();
   }
-  
+
   bindEvents() {
     // Auto-save on changes
     document.addEventListener('change', () => this.autoSave());
     document.addEventListener('input', () => this.autoSave());
-    
+
     // Layer selection
     this.layersList.addEventListener('click', (e) => {
       if (e.target.closest('.layer-item')) {
@@ -29,7 +32,37 @@ class CAPlaygroundDesktop {
       }
     });
   }
-  
+
+  // Login UI handling (projects page only)
+  updateLoginUI() {
+    const statusEl = document.getElementById('loginStatus');
+    const btn = document.getElementById('loginBtn');
+    if (!statusEl || !btn) return; // if DOM not ready
+
+    if (this.isLoggedIn) {
+      statusEl.classList.remove('offline');
+      statusEl.classList.add('online');
+      statusEl.textContent = '✅ Local Account Enabled';
+      btn.textContent = 'Disable Local Account';
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn-success');
+    } else {
+      statusEl.classList.remove('online');
+      statusEl.classList.add('offline');
+      statusEl.textContent = '🔒 Local Mode - No Account';
+      btn.textContent = 'Enable Local Account';
+      btn.classList.remove('btn-success');
+      btn.classList.add('btn-secondary');
+    }
+  }
+
+  toggleLogin() {
+    this.isLoggedIn = !this.isLoggedIn;
+    localStorage.setItem('caplayground-login', JSON.stringify(this.isLoggedIn));
+    this.updateLoginUI();
+    this.showToast(this.isLoggedIn ? 'Local account enabled' : 'Local account disabled');
+  }
+
   addDefaultLayer() {
     const backgroundLayer = {
       id: 'background',
@@ -45,13 +78,13 @@ class CAPlaygroundDesktop {
       duration: 2,
       zIndex: 0
     };
-    
+
     this.layers.push(backgroundLayer);
     this.activeLayerId = 'background';
     this.renderCanvas();
     this.updateLayersList();
   }
-  
+
   addLayer() {
     this.layerCounter++;
     const newLayer = {
@@ -68,39 +101,39 @@ class CAPlaygroundDesktop {
       duration: 2,
       zIndex: this.layers.length
     };
-    
+
     this.layers.push(newLayer);
     this.selectLayer(newLayer.id);
     this.updateLayersList();
     this.renderCanvas();
     this.showToast(`Added ${newLayer.name}`);
   }
-  
+
   selectLayer(layerId) {
     this.activeLayerId = layerId;
     this.updateLayersList();
     this.updatePropertiesPanel();
     this.highlightActiveLayer();
   }
-  
+
   updateLayersList() {
     this.layersList.innerHTML = '';
-    
+
     this.layers.forEach(layer => {
       const layerElement = document.createElement('div');
       layerElement.className = `layer-item ${layer.id === this.activeLayerId ? 'active' : ''}`;
       layerElement.dataset.layer = layer.id;
-      
+
       const icon = this.getLayerIcon(layer.type);
       layerElement.innerHTML = `
-        <span>${layer.name}</span>
-        <span>${icon}</span>
+        ${layer.name}
+        ${icon}
       `;
-      
+
       this.layersList.appendChild(layerElement);
     });
   }
-  
+
   getLayerIcon(type) {
     const icons = {
       shape: '🟡',
@@ -110,11 +143,11 @@ class CAPlaygroundDesktop {
     };
     return icons[type] || '⚪';
   }
-  
+
   updatePropertiesPanel() {
     const activeLayer = this.getActiveLayer();
     if (!activeLayer) return;
-    
+
     document.getElementById('layerType').value = activeLayer.type;
     document.getElementById('width').value = activeLayer.width;
     document.getElementById('height').value = activeLayer.height;
@@ -125,56 +158,56 @@ class CAPlaygroundDesktop {
     document.getElementById('bgColor').value = this.hexFromColor(activeLayer.backgroundColor);
     document.getElementById('opacity').value = activeLayer.opacity;
   }
-  
+
   getActiveLayer() {
     return this.layers.find(layer => layer.id === this.activeLayerId);
   }
-  
+
   updateProperty(property, value) {
     const activeLayer = this.getActiveLayer();
     if (!activeLayer) return;
-    
+
     activeLayer[property] = property === 'backgroundColor' ? value : parseFloat(value);
     this.renderCanvas();
     this.autoSave();
   }
-  
+
   updateLayerType() {
     const activeLayer = this.getActiveLayer();
     if (!activeLayer) return;
-    
+
     activeLayer.type = document.getElementById('layerType').value;
     this.updateLayersList();
     this.renderCanvas();
   }
-  
+
   updateAnimation() {
     const activeLayer = this.getActiveLayer();
     if (!activeLayer) return;
-    
+
     activeLayer.animation = document.getElementById('animationType').value;
     activeLayer.duration = parseFloat(document.getElementById('duration').value);
     this.renderCanvas();
     this.autoSave();
   }
-  
+
   renderCanvas() {
     // Clear canvas
     this.canvas.innerHTML = '';
-    
+
     // Render layers in z-index order
     const sortedLayers = [...this.layers].sort((a, b) => a.zIndex - b.zIndex);
-    
+
     sortedLayers.forEach(layer => {
       if (layer.id === 'background') {
         this.canvas.style.background = layer.backgroundColor;
         return;
       }
-      
+
       const layerElement = document.createElement('div');
       layerElement.className = 'animated-layer';
       layerElement.dataset.layerId = layer.id;
-      
+
       // Apply styles
       layerElement.style.cssText = `
         left: ${layer.x}px;
@@ -185,12 +218,12 @@ class CAPlaygroundDesktop {
         opacity: ${layer.opacity};
         z-index: ${layer.zIndex};
       `;
-      
+
       // Apply animation
       if (layer.animation !== 'none') {
         layerElement.style.animation = `${layer.animation} ${layer.duration}s infinite`;
       }
-      
+
       // Add content based on type
       if (layer.type === 'text') {
         layerElement.textContent = layer.text || 'Sample Text';
@@ -200,27 +233,27 @@ class CAPlaygroundDesktop {
         layerElement.style.color = 'white';
         layerElement.style.fontWeight = 'bold';
       }
-      
+
       this.canvas.appendChild(layerElement);
     });
   }
-  
+
   highlightActiveLayer() {
     // Remove previous highlights
     document.querySelectorAll('.animated-layer').forEach(el => {
       el.style.outline = 'none';
     });
-    
+
     // Highlight active layer
     const activeElement = document.querySelector(`[data-layer-id="${this.activeLayerId}"]`);
     if (activeElement) {
       activeElement.style.outline = '2px solid #0066cc';
     }
   }
-  
+
   togglePreview() {
     this.isPreviewMode = !this.isPreviewMode;
-    
+
     if (this.isPreviewMode) {
       document.querySelectorAll('.animated-layer').forEach(el => {
         el.style.outline = 'none';
@@ -231,45 +264,68 @@ class CAPlaygroundDesktop {
       this.showToast('Preview Mode OFF');
     }
   }
-  
+
   resetCanvas() {
     this.layers = [];
     this.layerCounter = 0;
     this.addDefaultLayer();
     this.showToast('Canvas Reset');
   }
-  
+
   exportProject() {
     const projectData = {
       name: 'CAPlayground_Wallpaper',
       timestamp: Date.now(),
       layers: this.layers,
-      canvasSize: { width: 375, height: 812 }
+      canvasSize: { width: 375, height: 812 },
+      owner: this.isLoggedIn ? 'local-user' : null
     };
-    
+
     const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `caplayground_${Date.now()}.json`;
     a.click();
-    
+
     URL.revokeObjectURL(url);
     this.showToast('Project Exported!');
   }
-  
+
   saveProject() {
     const projectData = {
       layers: this.layers,
       activeLayerId: this.activeLayerId,
-      layerCounter: this.layerCounter
+      layerCounter: this.layerCounter,
+      owner: this.isLoggedIn ? 'local-user' : null
     };
-    
+
     localStorage.setItem('caplayground-project', JSON.stringify(projectData));
     this.showToast('Project Saved Locally!');
   }
-  
+
+  loadProject() {
+    const saved = localStorage.getItem('caplayground-project');
+    if (!saved) {
+      this.showToast('No saved project found');
+      return;
+    }
+    try {
+      const projectData = JSON.parse(saved);
+      this.layers = projectData.layers || [];
+      this.activeLayerId = projectData.activeLayerId || null;
+      this.layerCounter = projectData.layerCounter || 0;
+      this.updateLayersList();
+      this.renderCanvas();
+      this.updatePropertiesPanel();
+      this.showToast('Project Loaded!');
+    } catch (e) {
+      console.warn('Failed to parse saved project', e);
+      this.showToast('Failed to load project');
+    }
+  }
+
   loadFromStorage() {
     const saved = localStorage.getItem('caplayground-project');
     if (saved) {
@@ -278,7 +334,7 @@ class CAPlaygroundDesktop {
         this.layers = projectData.layers || [];
         this.activeLayerId = projectData.activeLayerId || null;
         this.layerCounter = projectData.layerCounter || 0;
-        
+
         if (this.layers.length === 0) {
           this.addDefaultLayer();
         } else {
@@ -286,7 +342,7 @@ class CAPlaygroundDesktop {
           this.renderCanvas();
           this.updatePropertiesPanel();
         }
-        
+
         console.log('Project loaded from storage');
       } catch (e) {
         console.warn('Failed to load project from storage', e);
@@ -294,7 +350,7 @@ class CAPlaygroundDesktop {
       }
     }
   }
-  
+
   autoSave() {
     // Debounced auto-save
     clearTimeout(this.autoSaveTimeout);
@@ -302,7 +358,7 @@ class CAPlaygroundDesktop {
       this.saveProject();
     }, 1000);
   }
-  
+
   getRandomColor() {
     const colors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -310,61 +366,40 @@ class CAPlaygroundDesktop {
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
-  
+
   hexFromColor(color) {
     // Simple color extraction for color input
     if (color.startsWith('#')) return color;
     return '#ffffff'; // fallback
   }
-  
+
   showToast(message) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = message;
     toast.style.display = 'block';
-    
+
     setTimeout(() => {
       toast.style.display = 'none';
     }, 2000);
   }
 }
-
 // Global functions for HTML event handlers
 let app;
-
-function addLayer() {
-  app.addLayer();
-}
-
-function updateProperty(property, value) {
-  app.updateProperty(property, value);
-}
-
-function updateLayerType() {
-  app.updateLayerType();
-}
-
-function updateAnimation() {
-  app.updateAnimation();
-}
-
-function togglePreview() {
-  app.togglePreview();
-}
-
-function resetCanvas() {
-  app.resetCanvas();
-}
-
-function exportProject() {
-  app.exportProject();
-}
-
-function saveProject() {
-  app.saveProject();
-}
+function addLayer() { app.addLayer(); }
+function updateProperty(property, value) { app.updateProperty(property, value); }
+function updateLayerType() { app.updateLayerType(); }
+function updateAnimation() { app.updateAnimation(); }
+function togglePreview() { app.togglePreview(); }
+function resetCanvas() { app.resetCanvas(); }
+function exportProject() { app.exportProject(); }
+function saveProject() { app.saveProject(); }
+function loadProject() { app.loadProject(); }
+function toggleLogin() { app.toggleLogin(); }
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   app = new CAPlaygroundDesktop();
+  app.updateLoginUI();
   console.log('CAPlayground Desktop initialized');
 });
