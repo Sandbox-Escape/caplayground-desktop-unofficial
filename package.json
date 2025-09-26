@@ -1,0 +1,13 @@
+{
+  "name": "caplayground-desktop-unofficial",
+  "version": "1.0.0",
+  "description": "Electron desktop wrapper for caplayground.pages.dev (unofficial)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}
