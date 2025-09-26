@@ -1,126 +1,169 @@
-# caplayground-desktop (unofficial)
+# CAPlayground Desktop - Fully Local & Offline
 
-Electron desktop wrapper for caplayground.pages.dev (unofficial)
+🔒 **Complete offline Electron desktop application for CAPlayground - No remote connections, no cloud sync, no login required**
 
-## How to Install and Run
+## ⚠️ Important: Fully Local Operation
 
-### 1. Prerequisites
+**This desktop application is now completely offline and local:**
+- ❌ No connections to caplayground.pages.dev or any remote service
+- ❌ No cloud sync or remote storage
+- ❌ No login, authentication, or user accounts
+- ❌ No external API calls or network requests
+- ✅ Everything runs locally on your machine
+- ✅ Your code never leaves your device
+- ✅ Works completely offline
+- ✅ Built-in local code editor and execution environment
 
-Before you begin, make sure you have the following installed on your system:
+## 🚀 Features
 
-- **Node.js** (version 16 or higher recommended)
-  - Download from [nodejs.org](https://nodejs.org/)
-  - This will also install npm (Node Package Manager)
-- **Git** (to clone the repository)
-  - Download from [git-scm.com](https://git-scm.com/)
+- **Full Offline Operation**: Runs entirely on your local machine without any internet connection
+- **Built-in Code Editor**: Clean, modern interface with syntax highlighting
+- **Local Code Execution**: Safe, sandboxed JavaScript execution environment
+- **No External Dependencies**: All functionality is self-contained
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Privacy-First**: Your code and data never leave your device
 
-To verify your installation, open a terminal/command prompt and run:
+## 📦 Installation and Setup
+
+### Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js** (version 16 or higher) - Download from [nodejs.org](https://nodejs.org/)
+- **Git** (for cloning) - Download from [git-scm.com](https://git-scm.com/)
+
+Verify your installation:
 ```bash
 node --version
 npm --version
 git --version
 ```
 
-### 2. Cloning the Repository
-
-1. Open your terminal/command prompt
-2. Navigate to the directory where you want to clone the project
-3. Run the following command:
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Sandbox-Escape/caplayground-desktop-unofficial.git
-```
-
-4. Navigate into the project directory:
-
-```bash
 cd caplayground-desktop-unofficial
 ```
 
-### 3. Installing Dependencies
-
-Install all required dependencies using npm:
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-This will download and install all the packages listed in `package.json`, including Electron and other necessary dependencies.
+This installs:
+- Electron for the desktop application
+- Express for the local server
+- All other required dependencies
 
-### 4. Running the App
-
-To start the application in development mode:
+### 3. Run the Application
 
 ```bash
 npm start
 ```
 
 This will:
-- Launch the Electron application
-- Open a desktop window with the caplayground.pages.dev interface
-- Enable hot-reload for development (if configured)
+1. Start a local Express server on `http://localhost:3000`
+2. Launch the Electron desktop application
+3. Display the fully local CAPlayground interface
 
-To stop the application, press `Ctrl+C` in the terminal or close the application window.
+**Note**: The application creates its own local server and does not connect to any external services.
 
-### 5. (Optional) Packaging the App
+## 🏗️ Building Distributable Packages
 
-To create a distributable installer for your operating system, you can use Electron Builder:
+To create installers for distribution:
 
-#### Install Electron Builder (if not already included)
-
+### Build for Current Platform
 ```bash
-npm install --save-dev electron-builder
-```
-
-#### Build for your current platform
-
-```bash
-# For the current platform
 npm run build
-
-# Or use electron-builder directly
-npx electron-builder
 ```
 
-#### Build for specific platforms
-
+### Build for Specific Platforms
 ```bash
-# For Windows
+# Windows
 npx electron-builder --win
 
-# For macOS
+# macOS
 npx electron-builder --mac
 
-# For Linux
+# Linux
 npx electron-builder --linux
-```
 
-#### Build for all platforms
-
-```bash
+# All platforms
 npx electron-builder --mwl
 ```
 
-The built installers will be available in the `dist/` directory.
+Built packages will be available in the `dist/` directory.
 
-**Note:** To build for macOS on non-Mac systems, or for Windows on non-Windows systems, you may need additional setup. Refer to the [Electron Builder documentation](https://www.electron.build/) for platform-specific build requirements.
+## 🔧 Architecture
 
-## Troubleshooting
+- **Electron Main Process**: Manages the desktop application window
+- **Local Express Server**: Serves the CAPlayground interface on localhost:3000
+- **Built-in Editor**: HTML/CSS/JavaScript-based code editor
+- **Local Execution**: Safe evaluation of code within the Electron context
+- **No Network Dependencies**: Everything runs locally
+
+## 🛡️ Security
+
+This application prioritizes security and privacy:
+- **No Remote Connections**: Never connects to external servers
+- **Sandboxed Execution**: Code execution is contained within the application
+- **No Data Collection**: No telemetry, analytics, or user tracking
+- **Local Storage Only**: All data stays on your device
+
+## ⚠️ Migration from Remote Version
+
+If you previously used a version that connected to caplayground.pages.dev:
+- **Your local code is safe**: This version doesn't access remote data
+- **No cloud sync**: You'll need to manually save/backup your code
+- **Fully independent**: This version works completely offline
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-- **"npm command not found"**: Make sure Node.js is properly installed and added to your system PATH
-- **Permission errors on Linux/macOS**: Try running commands with `sudo` or fix npm permissions
-- **Build fails**: Ensure all dependencies are installed (`npm install`) and you're using a compatible Node.js version
-- **App won't start**: Check the console for error messages and ensure the main.js file exists
+**"Port 3000 already in use"**
+- Close any other applications using port 3000
+- Or modify `LOCAL_PORT` in `main.js`
+
+**Application won't start**
+- Ensure Node.js and npm are properly installed
+- Run `npm install` again to verify dependencies
+- Check that no antivirus is blocking the application
+
+**Code execution errors**
+- Remember this is a basic execution environment
+- Complex operations may need additional setup
+- Check the browser console for detailed error messages
 
 ### Getting Help
 
-If you encounter issues:
-1. Check the [Issues](https://github.com/Sandbox-Escape/caplayground-desktop-unofficial/issues) page for known problems
-2. Create a new issue with details about your problem and system information
-3. Include error messages and steps to reproduce the issue
+1. Check the [Issues](https://github.com/Sandbox-Escape/caplayground-desktop-unofficial/issues) page
+2. Create a new issue with:
+   - Your operating system
+   - Node.js version
+   - Error messages
+   - Steps to reproduce
 
-## License
+## 📝 Development
 
-This is an unofficial project. Please refer to the original caplayground.pages.dev for licensing information.
+To modify or extend the application:
+
+1. **Frontend**: Edit the HTML template in `main.js` (around line 20-100)
+2. **Backend**: Modify the Express server setup in `main.js`
+3. **Electron**: Adjust window properties and app behavior in `main.js`
+4. **Packaging**: Update build settings in `package.json`
+
+## 📄 License
+
+This is an unofficial, independent project. The application runs completely locally and does not interact with any remote CAPlayground services.
+
+## 🔄 Version History
+
+- **v2.0.0**: Complete rewrite for fully local operation
+- **v1.0.0**: Original remote wrapper (deprecated)
+
+---
+
+**🔒 Privacy Notice**: This application operates entirely offline. No data is transmitted to external servers, and no user information is collected or stored remotely.
